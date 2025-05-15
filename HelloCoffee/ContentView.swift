@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    
     @EnvironmentObject private var model: CoffeeModel
     
     private func populateOrders() async {
@@ -21,17 +20,23 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            List(model.orders) { order in
-                OrderCellView(order: order)
+            if model.orders.isEmpty {
+                Text("No orders available...")
+                    .accessibilityIdentifier("noOrdersText")
+            } else {
+                List(model.orders) { order in
+                    OrderCellView(order: order)
+                }
             }
-            .task {
-                await populateOrders()
-            }
+        }
+        .task {
+            await populateOrders()
         }
         .padding()
     }
 }
 
 #Preview {
-    ContentView().environmentObject(CoffeeModel(webservice: Webservice()))
+    var config = Configuration()
+    ContentView().environmentObject(CoffeeModel(webservice: Webservice(baseURL: config.environment.baseURL)))
 }
