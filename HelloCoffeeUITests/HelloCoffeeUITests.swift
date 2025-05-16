@@ -7,19 +7,64 @@
 
 import XCTest
 
-final class HelloCoffeeUITests: XCTestCase {
-
+final class when_adding_a_new_coffee_order: XCTestCase {
+    
+    private var app: XCUIApplication!
+    
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
+        try super.setUpWithError()
+        app = XCUIApplication()
         continueAfterFailure = false
+        app.launchEnvironment = ["ENV": "TEST"]
+        app.launch()
+        
+        //go to place order screen
+        app.buttons["addNewOrderButton"].tap()
+        
+        // fill out the textfields
+        let nameTextField = app.textFields["name"]
+        let coffeeTextField = app.textFields["coffeeName"]
+        let priceTextField = app.textFields["price"]
+        let placeOrderButton = app.buttons["placeOrderButton"]
+        
+        nameTextField.tap()
+        nameTextField.typeText("John")
+        
+        coffeeTextField.tap()
+        coffeeTextField.typeText("Hot Coffee")
+        
+        priceTextField.tap()
+        priceTextField.typeText("3.20")
+        
+        //place the order
+        placeOrderButton.tap()
+                
+    }
+    
+    func testShouldDisplayCoffeeOrderInListSuccessfully() throws {
+        
+        XCTAssertEqual("John", app.staticTexts["orderNameText"].label)
+        XCTAssertEqual("Hot Coffee", app.staticTexts["coffeeNameAndSizeTexts"].label)
+        XCTAssertEqual("R3.20", app.staticTexts["coffeePriceText"].label)
+    }
+    
+    override func tearDownWithError() throws {
+        Task {
+            guard let url = URL(string: "/test/clear-orders", relativeTo: URL(string: "")!) else {
+                return
+            }
+            
+            let (_, _) = try await URLSession.shared.data(from: url)
+        }
+    }
+}
 
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+final class HelloCoffeeUITests: XCTestCase {
+    override func setUpWithError() throws {
+        continueAfterFailure = false
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
     @MainActor

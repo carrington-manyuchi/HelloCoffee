@@ -18,12 +18,17 @@ class CoffeeModel: ObservableObject {
         self.webservice = webservice
     }
     
+    func populatedOrders() async throws {
+        orders = try await webservice.getOrders()
+    }
+    
     func placeOrder(_ order: Order) async throws {
         let newOrder = try await webservice.placeOrder(order: order)
         orders.append(newOrder)
     }
     
-    func populatedOrders() async throws {
-        orders = try await webservice.getOrders()
+    func deleteOrder(_ orderId: Int) async throws {
+        let deletedOrder = try await webservice.deleteOrder(orderId: orderId)
+        orders = orders.filter { $0.id != deletedOrder.id }
     }
 }
