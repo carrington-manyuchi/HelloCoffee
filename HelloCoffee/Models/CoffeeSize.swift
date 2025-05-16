@@ -11,6 +11,9 @@ enum CoffeeSize: String, Codable, CaseIterable {
     case  small = "Small"
     case medium = "Medium"
     case large = "Large"
-    
-    
+}
+
+
+enum CoffeeOrderError: Error {
+    case invalidOrderId
 }

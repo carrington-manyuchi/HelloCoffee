@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var isPresented: Bool = false
     @EnvironmentObject private var model: CoffeeModel
+    @Environment(\.dismiss) private var dismiss
     
     private func populateOrders() async {
         do {
@@ -41,7 +42,10 @@ struct ContentView: View {
                 } else {
                     List {
                         ForEach(model.orders) { order in
-                            OrderCellView(order: order)
+                            NavigationLink(value: order.id) {
+                                OrderCellView(order: order)
+                            }
+                           
                         }
                         .onDelete { indexSet in
                             Task { 
@@ -51,11 +55,15 @@ struct ContentView: View {
                     }
                 }
             }
+            .navigationDestination(for: Int.self, destination: { orderId in
+                OrderDetailView(orderId: orderId)
+            })
             .task {
                 await populateOrders()
             }
             .padding()
             .navigationTitle("Hello Coffee")
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $isPresented, content: {
                 AddCoffeeView()
             }) 
